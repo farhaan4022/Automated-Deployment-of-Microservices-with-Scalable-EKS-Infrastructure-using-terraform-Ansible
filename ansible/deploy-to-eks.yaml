@@ -1,0 +1,123 @@
+- name: Deploy microservices to EKS with selective Fargate configuration
+  hosts: localhost
+  gather_facts: no
+  tasks:
+
+    - name: Ensure the microservices namespace exists
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: microservices
+        kubeconfig: "/home/farhu/.kube/config"
+
+    - name: Deploy RedisCart with Helm
+      kubernetes.core.helm:
+        name: rediscart
+        chart_ref: /home/farhu/terraform/tf-ans-k8s/charts/redis
+        values_files:
+          - /home/farhu/terraform/tf-ans-k8s/charts/values/redis-values.yaml
+        namespace: microservices
+        kubeconfig: "/home/farhu/.kube/config"
+
+    - name: Deploy Email Service with Helm
+      kubernetes.core.helm:
+        name: emailservice
+        chart_ref: /home/farhu/terraform/tf-ans-k8s/charts/microservice
+        values_files:
+          - /home/farhu/terraform/tf-ans-k8s/charts/values/email-service-values.yaml
+        namespace: microservices
+        kubeconfig: "/home/farhu/.kube/config"
+
+    - name: Patch Email Service to use Fargate
+      kubernetes.core.k8s:
+        api_version: apps/v1
+        kind: Deployment
+        name: emailservice
+        namespace: microservices
+        merge_type: strategic-merge
+        definition:
+          metadata:
+            annotations:
+              eks.amazonaws.com/fargate-profile: "microservices-fargate-profile"
+        kubeconfig: "/home/farhu/.kube/config"
+
+    - name: Deploy Cart Service with Helm
+      kubernetes.core.helm:
+        name: cartservice
+        chart_ref: /home/farhu/terraform/tf-ans-k8s/charts/microservice
+        values_files:
+          - /home/farhu/terraform/tf-ans-k8s/charts/values/cart-service-values.yaml
+        namespace: microservices
+        kubeconfig: "/home/farhu/.kube/config"
+
+    - name: Deploy Currency Service with Helm
+      kubernetes.core.helm:
+        name: currencyservice
+        chart_ref: /home/farhu/terraform/tf-ans-k8s/charts/microservice
+        values_files:
+          - /home/farhu/terraform/tf-ans-k8s/charts/values/currency-service-values.yaml
+        namespace: microservices
+        kubeconfig: "/home/farhu/.kube/config"
+
+    - name: Deploy Payment Service with Helm
+      kubernetes.core.helm:
+        name: paymentservice
+        chart_ref: /home/farhu/terraform/tf-ans-k8s/charts/microservice
+        values_files:
+          - /home/farhu/terraform/tf-ans-k8s/charts/values/payment-service-values.yaml
+        namespace: microservices
+        kubeconfig: "/home/farhu/.kube/config"
+
+    - name: Deploy Recommendation Service with Helm
+      kubernetes.core.helm:
+        name: recommendationservice
+        chart_ref: /home/farhu/terraform/tf-ans-k8s/charts/microservice
+        values_files:
+          - /home/farhu/terraform/tf-ans-k8s/charts/values/recommendation-service-values.yaml
+        namespace: microservices
+        kubeconfig: "/home/farhu/.kube/config"
+
+    - name: Deploy Product Catalog Service with Helm
+      kubernetes.core.helm:
+        name: productcatalogservice
+        chart_ref: /home/farhu/terraform/tf-ans-k8s/charts/microservice
+        values_files:
+          - /home/farhu/terraform/tf-ans-k8s/charts/values/productcatalog-service-values.yaml
+        namespace: microservices
+        kubeconfig: "/home/farhu/.kube/config"
+
+    - name: Deploy Shipping Service with Helm
+      kubernetes.core.helm:
+        name: shippingservice
+        chart_ref: /home/farhu/terraform/tf-ans-k8s/charts/microservice
+        values_files:
+          - /home/farhu/terraform/tf-ans-k8s/charts/values/shipping-service-values.yaml
+        namespace: microservices
+        kubeconfig: "/home/farhu/.kube/config"
+
+    - name: Deploy Ad Service with Helm
+      kubernetes.core.helm:
+        name: adservice
+        chart_ref: /home/farhu/terraform/tf-ans-k8s/charts/microservice
+        values_files:
+          - /home/farhu/terraform/tf-ans-k8s/charts/values/ad-service-values.yaml
+        namespace: microservices
+        kubeconfig: "/home/farhu/.kube/config"
+
+    - name: Deploy Checkout Service with Helm
+      kubernetes.core.helm:
+        name: checkoutservice
+        chart_ref: /home/farhu/terraform/tf-ans-k8s/charts/microservice
+        values_files:
+          - /home/farhu/terraform/tf-ans-k8s/charts/values/checkout-service-values.yaml
+        namespace: microservices
+        kubeconfig: "/home/farhu/.kube/config"
+
+    - name: Deploy Frontend Service with Helm
+      kubernetes.core.helm:
+        name: frontendservice
+        chart_ref: /home/farhu/terraform/tf-ans-k8s/charts/microservice
+        values_files:
+          - /home/farhu/terraform/tf-ans-k8s/charts/values/frontend-values.yaml
+        namespace: microservices
+        kubeconfig: "/home/farhu/.kube/config"
